@@ -8,7 +8,9 @@ const jwt = require('jsonwebtoken');
 
 const verificationRequest = (apiObject, req) => {
     console.log(apiObject);
-    var token = jwt.sign({ email : apiObject.email, password: apiObject.password }, 'timtalks');
+    var token = jwt.sign({ email : apiObject.email, password: apiObject.password }, 'timtalks',{
+        expiresIn: 60 * 15// expires in 15 minutes
+      });
     return mailService.sendVerificationEmail({
         to: apiObject.email,
         subject: 'Verification Email',
@@ -27,19 +29,18 @@ const verificationRequest = (apiObject, req) => {
 
 
 const emailVerificationVerify = (apiObject, req) => {
-    console.log(apiObject.emailVerificationToken)
 
-    jwt.verify(apiObject.emailVerificationToken, 'timtalks', ((err, decoded) => {
+    return jwt.verify(apiObject.emailVerificationToken, 'timtalks', ((err, decoded) => {
         if(err) {
-            console.log(err)
             return false
         } 
 
-        console.log(decoded)
+        if(decoded.email && decoded.password && decoded.iat) {
+            return true;
+        }
 
     }))
         
-
 };
 
 

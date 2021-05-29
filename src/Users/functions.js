@@ -8,7 +8,7 @@ module.exports = {
     mutation: {
         /** verification email Id */
         verificationRequest: ({email, password}, req) => User.verificationRequest({email, password}, req),
-        emailVerificationVerify: ({emailVerificationToken}, req) => User.emailVerificationVerify({emailVerificationToken}, req)
-
+        emailVerificationVerify: ({emailVerificationToken}, req) => User.emailVerificationVerify({emailVerificationToken}, req),
+        publicUserRegister : ({input}, req) => User.publicUserRegister({input}, req)
     }
 };

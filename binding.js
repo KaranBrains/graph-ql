@@ -1,5 +1,5 @@
 const kitten = require('./src/kittens/functions');
-const User = require('./src/Users/functions')
+const User = require('./src/Users/functions');
 
 module.exports = {
     /** bind your query and mutation functions here */
@@ -12,5 +12,6 @@ module.exports = {
     kittenUpdate: kitten.mutation.update,
     kittenDelete: kitten.mutation.delete,
     emailVerificationRequest: User.mutation.verificationRequest,
-    emailVerificationVerify : User.mutation.emailVerificationVerify
+    emailVerificationVerify : User.mutation.emailVerificationVerify,
+    publicUserRegister : User.mutation.publicUserRegister
 };

@@ -115,7 +115,7 @@ module.exports = require('graphql').buildSchema(`
             url: String!
         },
         type User {
-            id: ID!,
+            _id: ID!,
             roles: [Role]!,
             email: String!,
             password: String,

@@ -2,10 +2,18 @@ const mongoose = require('mongoose');
 const log = require('@talkbox/backend-util-logger');
 const mailService  = require('../services/email');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const { errorName } = require('../constants/errors')
 
 const userSchema = new mongoose.Schema({
     email : {
-        type: String
+        type: String,
+        unique: true,
+        required: true,
+    },    
+    password : {
+        type: String,
+        required: true,
     },
     countryCode : {
         type: String
@@ -153,6 +161,23 @@ const userSchema = new mongoose.Schema({
     },
 });
 
+userSchema.pre('save', function (next) {
+    const user = this;
+  
+    if (!user.isModified('password')) return next();
+  
+    bcrypt.genSalt(10, function (err, salt) {
+      if (err) return next(err);
+  
+      bcrypt.hash(user.password, salt, function (err, hash) {
+        if (err) return next(err);
+  
+        user.password = hash;
+        next();
+      });
+    });
+  });
+
 const User = mongoose.model('User', userSchema);
 
 
@@ -185,31 +210,35 @@ const emailVerificationVerify = (apiObject, req) => {
         if(err) {
             return false
         } 
-
         if(decoded.email && decoded.password && decoded.iat) {
             return true;
         }
-
     }))
         
 };
 
-const publicUserRegister = (apiObject, req) => {
-    console.log(apiObject.input);
-
-    return true;
-
-    // return jwt.verify(apiObject.emailVerificationToken, 'timtalks', ((err, decoded) => {
-    //     if(err) {
-    //         return false
-    //     } 
-
-    //     if(decoded.email && decoded.password && decoded.iat) {
-    //         return true;
-    //     }
-
-    // }))
-        
+const publicUserRegister = async (apiObject, req) => {
+    try {
+        const incomingUser = {
+            email: apiObject.input.fields.email,
+            password: apiObject.input.credential.password
+        }
+        let user = await User.findOne({ email: apiObject.input.fields.email });
+        if (!user) {
+            return new User(incomingUser).save()
+            .then(result => {
+                if (result) log.info("User", "create|"+result._id);
+                return result;
+            })
+            .catch(err=>{
+                throw err;
+            });
+        } else {
+            throw new Error(errorName.ALREADY_EXISTS)
+        }
+      } catch (err) {
+            throw err
+      }
 };
 
 

@@ -13,5 +13,6 @@ module.exports = {
     kittenDelete: kitten.mutation.delete,
     emailVerificationRequest: User.mutation.verificationRequest,
     emailVerificationVerify : User.mutation.emailVerificationVerify,
-    publicUserRegister : User.mutation.publicUserRegister
+    publicUserRegister : User.mutation.publicUserRegister,
+    meUpdate: User.mutation.meUpdate,
 };

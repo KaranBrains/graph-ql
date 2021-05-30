@@ -105,13 +105,13 @@ module.exports = require('graphql').buildSchema(`
             newPassword: String!
         },
         type Media {
-            id: String!,
+            _id: String!,
             url: String!,
             title: String,
             description: String
         },
         type File {
-            id: String!,
+            _id: String!,
             url: String!
         },
         type User {
@@ -182,7 +182,7 @@ module.exports = require('graphql').buildSchema(`
             
             "header: x-token, require 'anyUser'"
 
-            meUpdate(input: UserUpdateInput): [User],
+            meUpdate(input: UserUpdateInput): User,
             
             forgetPasswordRequest(email: String!): Boolean,
             

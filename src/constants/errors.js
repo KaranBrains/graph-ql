@@ -1,10 +1,20 @@
 exports.errorName = {
-    ALREADY_EXISTS: 'ALREADY_EXISTS'
-  }
+    ALREADY_EXISTS: 'ALREADY_EXISTS',
+    DOESNT_EXISTS: 'DOESNT_EXISTS',
+    EMAIL_MISSING: 'EMAIL_MISSING'
+}
   
-  exports.errorType = {
+exports.errorType = {
     ALREADY_EXISTS: {
-      message: 'The user already exists.',
-      statusCode: 401
+        message: 'The user already exists.',
+        statusCode: 401
+    },
+    DOESNT_EXISTS: {
+        message: 'The user does not exist.',
+        statusCode: 401
+    },
+    EMAIL_MISSING: {
+        message: 'You need to send email.',
+        statusCode: 401
     }
-  }
+}

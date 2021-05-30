@@ -24,7 +24,7 @@ module.exports = require('graphql').buildSchema(`
             bba
         },
         enum Language {
-            en, zh
+            en , zh
         },
         input MediaInput {
             inputBase64: String,

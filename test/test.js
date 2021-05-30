@@ -6,5 +6,5 @@ test.initTest();
 // include all the tests here
 describe('tests', () => {
     /** include all test classes here */
-    require('../src/test').test(methods);
+    require('../src/Users/test').test(methods);
 });

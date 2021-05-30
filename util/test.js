@@ -7,7 +7,7 @@ const MongoMemoryServer = require('mongodb-memory-server').MongoMemoryServer;
 
 const expressTest = require('@talkbox/backend-test-util-express');
 
-const User = require('./permission').User;
+const User = require('../src/Users/model').User;
 const Token = require('./permission').Token;
 const app = require('./app');
 
@@ -15,21 +15,22 @@ const tokenHeaderKey = 'x-token';
 const userCredential = '60757d9700e891f8eb417ec5';
 const adminCredential = '60757e68a8ac0d534ff99310';
 
-const initData = () => {
+const initData = async() => {
     mongoose.connection.dropDatabase();
     //normal user
     new User({
         _id: "60757f0f9831c3e8a9f22387",
-        type: ["public"]
+        email: "test123@gmail.com",
+        password: "test123"
+    }).save();
+    await new User({
+        _id: "60757f0f9831c3e8a9f22389",
+        email: "test1234@gmail.com",
+        password: "test1234"
     }).save();
     new Token({
         _id: "60757d9700e891f8eb417ec5",
         userId: "60757f0f9831c3e8a9f22387"
-    }).save();
-    //admin user
-    new User({
-        _id: "60757f1d95a9419597ac69b2",
-        type: ["admin"]
     }).save();
     new Token({
         _id: "60757e68a8ac0d534ff99310",

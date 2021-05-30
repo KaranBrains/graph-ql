@@ -3,7 +3,8 @@ const log = require('@talkbox/backend-util-logger');
 const mailService  = require('../services/email');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { errorName } = require('../constants/errors')
+const { errorName } = require('../constants/errors');
+require('dotenv').config();
 
 const mediaSchema = new mongoose.Schema({
     url : {
@@ -57,19 +58,19 @@ const userSchema = new mongoose.Schema({
     },
     introductionVideo : mediaSchema,
     interestedEmploymentType : {
-        enum: ['freelance', 'contract', 'fullTime', 'partTime']
+        type: String
     },
     interestedIndustry : {
-        enum: ['designArt', 'graphicDesign', 'illustrationDrawing', 'animationDesign' , 'webDesign']
+        type: String
     },
     school : {
-        enum: ['hku']
+        type: String
     },
     degree : {
-        enum: ['bba']
+        type: String
     },
     language : {
-        enum: ['en' , 'zh']
+        type: String
     },
     fieldOfStudy : {
         type: String
@@ -88,13 +89,13 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     employmentType : {
-        enum: ['freelance', 'contract', 'fullTime', 'partTime']
+        type: String
     },
     companyName : {
         type: String
     },
     industry : {
-        enum: ['designArt', 'graphicDesign', 'illustrationDrawing', 'animationDesign' , 'webDesign']
+        type: String
     },
     currentJob : {
         type: Boolean
@@ -157,37 +158,52 @@ const User = mongoose.model('User', userSchema);
 
 
 const verificationRequest = (apiObject, req) => {
-    console.log(apiObject);
-    var token = jwt.sign({ email : apiObject.email, password: apiObject.password }, 'timtalks',{
-        expiresIn: 60 * 15// expires in 15 minutes
-      });
-    return mailService.sendVerificationEmail({
-        to: apiObject.email,
-        subject: 'Verification Email',
-        text: `Hi Your email verification token is http://localhost:3000?emailToken=${token}`
-    })
-        .then((response) => {
-            log.info("email send successfully");
-            console.log(response)
-            return true
+    try {
+        if (!apiObject.email || !apiObject.password) {
+            throw new Error(errorName.WRONG_INPUT)
+        }
+        var token = jwt.sign({ email : apiObject.email, password: apiObject.password }, process.env.jwtSecret,{
+            expiresIn: 60 * 15// expires in 15 minutes
+        });
+        return mailService.sendVerificationEmail({
+            to: apiObject.email,
+            subject: 'Verification Email',
+            text: `Hi Your email verification token is http://localhost:3000?emailToken=${token}`
         })
-        .catch(err => {
-            return false
-        })
+            .then((response) => {
+                log.info("email send successfully");
+                console.log(response)
+                return true
+            })
+            .catch(err => {
+                throw err;
+            })
+      } catch (err) {
+            throw err;
+      }
 };
 
 
 
 const emailVerificationVerify = (apiObject, req) => {
 
-    return jwt.verify(apiObject.emailVerificationToken, 'timtalks', ((err, decoded) => {
-        if(err) {
-            return false
-        } 
-        if(decoded.email && decoded.password && decoded.iat) {
-            return true;
+    try {
+        if (!apiObject.emailVerificationToken) {
+            throw new Error(errorName.WRONG_INPUT)
         }
-    }))
+        return jwt.verify(apiObject.emailVerificationToken, process.env.jwtSecret, ((err, decoded) => {
+            if(err) {
+                return false
+            } 
+            if(decoded.email && decoded.password && decoded.iat) {
+                return true;
+            } else {
+                return false;
+            }
+        }))
+      } catch (err) {
+            throw err;
+      }
         
 };
 
@@ -220,6 +236,8 @@ const meUpdate = async (apiObject, req) => {
             const profilePic = apiObject.input.fields.profilePicBase64 ? {
                 url : apiObject.input.fields.profilePicBase64
             } : null;
+            const language = `${apiObject.input.fields.language}`;
+            console.log(language);
 
             const introductionVideo = apiObject.input.fields.introductionVideoBase64 ? {
                 url : apiObject.input.fields.introductionVideoBase64.inputBase64 ? apiObject.input.fields.introductionVideoBase64.inputBase64 : null,
@@ -276,7 +294,7 @@ const meUpdate = async (apiObject, req) => {
                 school: apiObject.input.fields.school ? apiObject.input.fields.school : null,
                 industry: apiObject.input.fields.industry ? apiObject.input.fields.industry : null,
                 degree: apiObject.input.fields.degree ? apiObject.input.fields.degree : null,
-                language: apiObject.input.fields.language ? apiObject.input.fields.language : null,
+                language: language,
                 fieldOfStudy: apiObject.input.fields.fieldOfStudy ? apiObject.input.fields.fieldOfStudy : null,
                 studyStartYear: apiObject.input.fields.studyStartYear ? apiObject.input.fields.studyStartYear : null,
                 studyEndYear: apiObject.input.fields.studyEndYear ? apiObject.input.fields.studyEndYear : null,
@@ -308,11 +326,9 @@ const meUpdate = async (apiObject, req) => {
                 return User.findOneAndUpdate({ email: apiObject.input.fields.email }, incomingUser, {new: true})
                 .then(result => {
                     if (result) log.info("User", "update|"+result._id);
-                    console.log(result);
                     return result;
                 })
                 .catch(err=>{
-                    console.log(err);
                     throw err;
                 });
             }
@@ -325,6 +341,7 @@ const meUpdate = async (apiObject, req) => {
 
 
 module.exports = {
+    User: User,
     verificationRequest: verificationRequest, 
     emailVerificationVerify: emailVerificationVerify,
     publicUserRegister: publicUserRegister,

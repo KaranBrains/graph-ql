@@ -19,3 +19,5 @@ const app = require('./util/app');
 
 /** start express server */
 backendExpress.start(app);
+
+module.exports = app;

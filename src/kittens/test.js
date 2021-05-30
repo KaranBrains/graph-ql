@@ -2,7 +2,7 @@
  * Sample test class
  */
 const assert = require('chai').assert;
-const initData = require('../util/test').initData;
+const initData = require('../../util/test').initData;
 
 module.exports = {
     test: (methods) => {
